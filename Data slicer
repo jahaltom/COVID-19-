@@ -1,0 +1,17 @@
+import pandas as pd
+
+
+
+df = pd.read_csv("results_TPM_gene.tsv",sep='\t')
+
+#Import list of SRP and SRR IDs. 
+srr_list = pd.read_csv("List",sep=',')
+##Create dict that has SRP ID as key.
+d = srr_list.groupby('SRP')['SRR'].apply(list).to_dict()
+
+
+for key in d:
+    quant = df[d[key]]  
+    metadata = df[df.columns[0:7]]
+    result = pd.concat([metadata, quant], axis=1)
+    result.to_csv(key + ".tsv")
