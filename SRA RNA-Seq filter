@@ -1,0 +1,21 @@
+import pandas as pd
+from pysradb import sraweb
+
+##SRA database
+db = sraweb.SRAweb()
+
+##Read file containing SRR IDs
+srr_list = open("ID", "r")
+##List to store metadata for paired end only
+srr_metadata = []
+##Make a writable file to store paired end SRR IDs
+fo=open('srr_paired_end.IDs','w')
+
+for srr in srr_list:              
+   df = db.sra_metadata(srr)
+   if df['library_layout'].str.contains('PAIRED').any():       
+       fo.write(srr)
+       srr_metadata.append(df)
+result = pd.concat(srr_metadata)
+result.to_csv("srr.paired_end.metadata")
+
