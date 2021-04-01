@@ -19,3 +19,4 @@ for srr in srr_list:
 result = pd.concat(srr_metadata)
 result.to_csv("srr.paired_end.metadata")
 
+snakemake -j 50 --cluster "sbatch -t 12:00:00 -c 28 -N 1 -p RM-shared"
