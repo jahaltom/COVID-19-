@@ -1,0 +1,12 @@
+import pandas as pd
+from pysradb import sraweb
+
+db = sraweb.SRAweb()
+SRPMetadataDF = []
+SRPList = open("ID", "r")
+
+for srp in SRPList:              
+   df = db.sra_metadata(srp)
+   SRPMetadataDF.append(df)
+result = pd.concat(SRPMetadataDF)
+result.to_csv("SRRS4_Metadata.csv")
