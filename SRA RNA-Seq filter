@@ -1,17 +1,23 @@
 import pandas as pd
 from pysradb import sraweb
 import json
+import subprocess
 
 
 
 
 
 
+#efetch -db sra -id sampleids -format native -json > json
 
-#efetch -db sra -id SRR12594384 -format native -json > json
-
-
-
+#get xml
+    outfile=open("bagoo",'w')
+    cmd='epost -db sra -format acc -input sampleids | efetch -format native -json' 
+    result = subprocess.Popen(cmd, shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+    out,err = result.communicate()
+    out=out.decode("utf-8")
+    outfile.write(out+'\n')
+    outfile.close()
 
 with open('json') as json_file:
    data = json.load(json_file)   
