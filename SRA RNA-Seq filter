@@ -1,22 +1,40 @@
 import pandas as pd
 from pysradb import sraweb
+import json
 
-##SRA database
-db = sraweb.SRAweb()
 
-##Read file containing SRR IDs
-srr_list = open("ID", "r")
-##List to store metadata for paired end only
-srr_metadata = []
-##Make a writable file to store paired end SRR IDs
-fo=open('srr_paired_end.IDs','w')
 
-for srr in srr_list:              
-   df = db.sra_metadata(srr)
-   if df['library_layout'].str.contains('PAIRED').any():       
-       fo.write(srr)
-       srr_metadata.append(df)
-result = pd.concat(srr_metadata)
-result.to_csv("srr.paired_end.metadata")
 
-snakemake -j 50 --cluster "sbatch -t 12:00:00 -c 28 -N 1 -p RM-shared"
+
+
+
+#efetch -db sra -id SRR12594384 -format native -json > json
+
+
+
+
+with open('json') as json_file:
+   data = json.load(json_file)   
+   #print(data['EXPERIMENT_PACKAGE_SET']['EXPERIMENT_PACKAGE']['STUDY']['accession'])
+   #print(data['EXPERIMENT_PACKAGE_SET']['EXPERIMENT_PACKAGE']['STUDY']['DESCRIPTOR']['STUDY_TITLE'])
+   #print(data['EXPERIMENT_PACKAGE_SET']['EXPERIMENT_PACKAGE']['STUDY']['DESCRIPTOR']['STUDY_ABSTRACT'])
+   ##String of LIBRARY_CONSTRUCTION_PROTOCOL
+   info = (data['EXPERIMENT_PACKAGE_SET']['EXPERIMENT_PACKAGE']['EXPERIMENT']['DESIGN']['LIBRARY_DESCRIPTOR']['LIBRARY_CONSTRUCTION_PROTOCOL'])
+   if "Chromium" or "Single Cell" in info:
+      break
+   else:
+         ##SRA database
+         db = sraweb.SRAweb()
+         ##Make a writable file to store paired end SRR IDs
+         metadata=open('srr_paired_end.metadata','w')                      
+         df = db.sra_metadata(srr)
+         if df['library_layout'].str.contains('PAIRED').any():       
+                metadata.write(srr)
+                srr_metadata.append(df)
+         result = pd.concat(srr_metadata)
+         result.to_csv("srr.paired_end.metadata")
+         
+         
+         
+
+         snakemake -j 50 --cluster "sbatch -t 12:00:00 -c 28 -N 1 -p RM-shared"
