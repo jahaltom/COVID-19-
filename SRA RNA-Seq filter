@@ -8,39 +8,47 @@ import subprocess
 
 
 
-#efetch -db sra -id sampleids -format native -json > json
+def get_info(id_file)
+    ids=open(id_file,'r')
+    ##Make a list to store metadata
+    metadata=[]
+    ##Load SRA database
+    db = sraweb.SRAweb()
+    for i in ids:
+        outfile=open("json_temp",'w')
+        cmd='efetch -db sra -id ' + i + ' -format native -json > json_temp' 
+        result = subprocess.Popen(cmd, shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+        out,err = result.communicate()
+        out=out.decode("utf-8")
+        outfile.write(out+'\n')
+        outfile.close()
 
-#get xml
-    outfile=open("bagoo",'w')
-    cmd='epost -db sra -format acc -input sampleids | efetch -format native -json' 
-    result = subprocess.Popen(cmd, shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
-    out,err = result.communicate()
-    out=out.decode("utf-8")
-    outfile.write(out+'\n')
-    outfile.close()
+        with open('json') as json_file:
+           data = json.load(json_file)
+           ##Prints SRP
+           #print(data['EXPERIMENT_PACKAGE_SET']['EXPERIMENT_PACKAGE']['STUDY']['accession'])
+           ##study title
+           title = (data['EXPERIMENT_PACKAGE_SET']['EXPERIMENT_PACKAGE']['STUDY']['DESCRIPTOR']['STUDY_TITLE'])
+           ##study abstract
+           abs = (data['EXPERIMENT_PACKAGE_SET']['EXPERIMENT_PACKAGE']['STUDY']['DESCRIPTOR']['STUDY_ABSTRACT'])
+           ##LIBRARY_CONSTRUCTION_PROTOCOL
+           lib_info = (data['EXPERIMENT_PACKAGE_SET']['EXPERIMENT_PACKAGE']['EXPERIMENT']['DESIGN']['LIBRARY_DESCRIPTOR']['LIBRARY_CONSTRUCTION_PROTOCOL'])
+           if "Chromium" or "Single Cell" in info:
+                continue
+           else:
+                 #Retrieve metadata
+                 df = db.sra_metadata(i)
+                 if df['library_layout'].str.contains('PAIRED').any():  
+                        df.insert(21,"Title",[title],True)
+                        df.insert(22,"Abstract",[abs],True)
+                        df.insert(23,"LIBRARY_CONSTRUCTION_PROTOCOL",[lib_info],True)
+                        metadata.append(df)
+                       
 
-with open('json') as json_file:
-   data = json.load(json_file)   
-   #print(data['EXPERIMENT_PACKAGE_SET']['EXPERIMENT_PACKAGE']['STUDY']['accession'])
-   #print(data['EXPERIMENT_PACKAGE_SET']['EXPERIMENT_PACKAGE']['STUDY']['DESCRIPTOR']['STUDY_TITLE'])
-   #print(data['EXPERIMENT_PACKAGE_SET']['EXPERIMENT_PACKAGE']['STUDY']['DESCRIPTOR']['STUDY_ABSTRACT'])
-   ##String of LIBRARY_CONSTRUCTION_PROTOCOL
-   info = (data['EXPERIMENT_PACKAGE_SET']['EXPERIMENT_PACKAGE']['EXPERIMENT']['DESIGN']['LIBRARY_DESCRIPTOR']['LIBRARY_CONSTRUCTION_PROTOCOL'])
-   if "Chromium" or "Single Cell" in info:
-      break
-   else:
-         ##SRA database
-         db = sraweb.SRAweb()
-         ##Make a writable file to store paired end SRR IDs
-         metadata=open('srr_paired_end.metadata','w')                      
-         df = db.sra_metadata(srr)
-         if df['library_layout'].str.contains('PAIRED').any():       
-                metadata.write(srr)
-                srr_metadata.append(df)
-         result = pd.concat(srr_metadata)
-         result.to_csv("srr.paired_end.metadata")
-         
-         
+        result = pd.concat(metadata)
+        result.to_csv("srr.metadata")
+
+
          
 
          snakemake -j 50 --cluster "sbatch -t 12:00:00 -c 28 -N 1 -p RM-shared"
