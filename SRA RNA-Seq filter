@@ -26,10 +26,14 @@ for i in ids:
        title = (data['EXPERIMENT_PACKAGE_SET']['EXPERIMENT_PACKAGE']['STUDY']['DESCRIPTOR']['STUDY_TITLE'])
        ##study abstract
        abstract = (data['EXPERIMENT_PACKAGE_SET']['EXPERIMENT_PACKAGE']['STUDY']['DESCRIPTOR']['STUDY_ABSTRACT'])
-       ##LIBRARY_CONSTRUCTION_PROTOCOL
-       lib_info = (data['EXPERIMENT_PACKAGE_SET']['EXPERIMENT_PACKAGE']['EXPERIMENT']['DESIGN']['LIBRARY_DESCRIPTOR']['LIBRARY_CONSTRUCTION_PROTOCOL'])
+       try:
+           ##LIBRARY_CONSTRUCTION_PROTOCOL
+           lib_info = (data['EXPERIMENT_PACKAGE_SET']['EXPERIMENT_PACKAGE']['EXPERIMENT']['DESIGN']['LIBRARY_DESCRIPTOR']['LIBRARY_CONSTRUCTION_PROTOCOL'])
+       except:
+            print(i+"has no Lib Info")
+            continue
        if "Chromium" in lib_info or "Single Cell" in lib_info:
-            print("bagoo")
+            print(i+"is single cell")
             os.remove("json_temp")
             continue
 
@@ -37,13 +41,12 @@ for i in ids:
              #Retrieve metadata
              df = db.sra_metadata(i)
              if df['library_layout'].str.contains('PAIRED').any():
-                    df.insert(21,"Title",[title],True)
-                    df.insert(22,"Abstract",[abstract],True)
-                    df.insert(23,"LIBRARY_CONSTRUCTION_PROTOCOL",[lib_info],True)
+                    df.insert(len(df.columns),"Title",[title],True)
+                    df.insert(len(df.columns),"Abstract",[abstract],True)
+                    df.insert(len(df.columns),"LIBRARY_CONSTRUCTION_PROTOCOL",[lib_info],True)
 
                     metadata.append(df)
              os.remove("json_temp")
 
-
-    result = pd.concat(metadata)
-    result.to_csv("srr.metadata")
+result = pd.concat(metadata)
+result.to_csv("srr.metadata")
