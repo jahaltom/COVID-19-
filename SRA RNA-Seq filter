@@ -48,7 +48,7 @@ for i in ids:
                         df.insert(len(df.columns),"LIBRARY_CONSTRUCTION_PROTOCOL",[lib_info],True)
                         metadata.append(df)
              except:
-                print(i+"no layout ")
+                print(i+ "no layout ")
              os.remove("json_temp")
 
 result = pd.concat(metadata)
