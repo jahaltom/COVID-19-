@@ -10,6 +10,7 @@ ids=open("sampleid",'r')
 ##Make a list to store metadata
 metadata_single_cell=[]
 metadata_bulk=[]
+single=[]
 ##Load SRA database
 db = sraweb.SRAweb()
 for i in ids:
@@ -22,12 +23,16 @@ for i in ids:
     outfile.close()
     with open('json_temp') as json_file:
        data = json.load(json_file)
-       ##Prints SRP
-       #print(data['EXPERIMENT_PACKAGE_SET']['EXPERIMENT_PACKAGE']['STUDY']['accession'])
-       ##study title
-       title = (data['EXPERIMENT_PACKAGE_SET']['EXPERIMENT_PACKAGE']['STUDY']['DESCRIPTOR']['STUDY_TITLE'])
-       ##study abstract
-       abstract = (data['EXPERIMENT_PACKAGE_SET']['EXPERIMENT_PACKAGE']['STUDY']['DESCRIPTOR']['STUDY_ABSTRACT'])
+       try:
+           ##Title
+           title = (data['EXPERIMENT_PACKAGE_SET']['EXPERIMENT_PACKAGE']['STUDY']['DESCRIPTOR']['STUDY_TITLE'])      
+       except:
+           title="none"
+       try:
+           ##study abstract
+           abstract = (data['EXPERIMENT_PACKAGE_SET']['EXPERIMENT_PACKAGE']['STUDY']['DESCRIPTOR']['STUDY_ABSTRACT'])
+       except:
+           abstract = "none"     
        try:
            ##LIBRARY_CONSTRUCTION_PROTOCOL
            lib_info = (data['EXPERIMENT_PACKAGE_SET']['EXPERIMENT_PACKAGE']['EXPERIMENT']['DESIGN']['LIBRARY_DESCRIPTOR']['LIBRARY_CONSTRUCTION_PROTOCOL'])      
@@ -43,31 +48,36 @@ for i in ids:
             os.remove("json_temp")
             continue
             
-            
+       ##Single-Cell RNA-Seq     
        if "Chromium" in lib_info or "Single Cell" in lib_info or "single-cell" in lib_info or "single cell" in lib_info or "Single-cell" in lib_info or "Chromium" in design or "Single Cell" in design or "single-cell" in design or "single cell" in design or "Single-cell" in design:
             #Retrieve metadata
+             print(i)
              df = db.sra_metadata(i)
              ##Sometime db.sra_metadata outputs two SRR? 
-             df = df.loc[df['run_accession'] == i]
+             df = df.loc[df['run_accession'] == i.replace("\n", "")]             
              try:
-                 if df['library_layout'].str.contains('PAIRED').any():
+                 if df['library_layout'].str.contains('PAIRED').any():                        
                         df.insert(len(df.columns),"Title",[title],True)
                         df.insert(len(df.columns),"Abstract",[abstract],True)
                         df.insert(len(df.columns),"LIBRARY_CONSTRUCTION_PROTOCOL",[lib_info],True)
                         df.insert(len(df.columns),"DESIGN_DESCRIPTION",[design],True)
                         metadata_single_cell.append(df)
+                 else:
+                     df.insert(len(df.columns),"Bagoo",["single"],True)
+                     single.append(df)
              except:
                 print(i+ "no layout ")
                 os.remove("json_temp")
                 continue
              os.remove("json_temp")
            
-    
+       ##Bulk RNA-Seq
        else:
              #Retrieve metadata
+             print(i)
              df = db.sra_metadata(i)
              ##Sometime db.sra_metadata outputs two SRR? 
-             df = df.loc[df['run_accession'] == i]
+             df = df.loc[df['run_accession'] == i.replace("\n", "")]
              try:
                  if df['library_layout'].str.contains('PAIRED').any():
                         df.insert(len(df.columns),"Title",[title],True)
@@ -75,6 +85,9 @@ for i in ids:
                         df.insert(len(df.columns),"LIBRARY_CONSTRUCTION_PROTOCOL",[lib_info],True)
                         df.insert(len(df.columns),"DESIGN_DESCRIPTION",[design],True)
                         metadata_bulk.append(df)
+                 else:
+                     df.insert(len(df.columns),"Bagoo",["bulk"],True)
+                     single.append(df)
              except:
                 print(i+ "no layout ")
                 os.remove("json_temp")
@@ -86,6 +99,9 @@ single_cell.to_csv("single_cell.metadata")
 
 bulk = pd.concat(metadata_bulk)
 bulk.to_csv("bulk.metadata")
+
+sin = pd.concat(single)
+sin.to_csv("single.metadata")
 
 
 
