@@ -5,9 +5,10 @@ import subprocess
 import os
 
 
+
 ids=open("sampleid",'r')
 ##Make a list to store metadata
-metadata_single=[]
+metadata_single_cell=[]
 metadata_bulk=[]
 ##Load SRA database
 db = sraweb.SRAweb()
@@ -29,13 +30,20 @@ for i in ids:
        abstract = (data['EXPERIMENT_PACKAGE_SET']['EXPERIMENT_PACKAGE']['STUDY']['DESCRIPTOR']['STUDY_ABSTRACT'])
        try:
            ##LIBRARY_CONSTRUCTION_PROTOCOL
-           lib_info = (data['EXPERIMENT_PACKAGE_SET']['EXPERIMENT_PACKAGE']['EXPERIMENT']['DESIGN']['LIBRARY_DESCRIPTOR']['LIBRARY_CONSTRUCTION_PROTOCOL'])
+           lib_info = (data['EXPERIMENT_PACKAGE_SET']['EXPERIMENT_PACKAGE']['EXPERIMENT']['DESIGN']['LIBRARY_DESCRIPTOR']['LIBRARY_CONSTRUCTION_PROTOCOL'])      
+       except:
+           lib_info="none"
+       try:
            ##DESIGN_DESCRIPTION
            design = (data['EXPERIMENT_PACKAGE_SET']['EXPERIMENT_PACKAGE']['EXPERIMENT']['DESIGN']['DESIGN_DESCRIPTION'])
        except:
-            print(i+"has no Lib Info")
+           design = "none"     
+       if design=="none" and lib_info=="none":   
+            print(i + "No Lib Info")
             os.remove("json_temp")
             continue
+            
+            
        if "Chromium" in lib_info or "Single Cell" in lib_info or "single-cell" in lib_info or "single cell" in lib_info or "Single-cell" in lib_info or "Chromium" in design or "Single Cell" in design or "single-cell" in design or "single cell" in design or "Single-cell" in design:
             #Retrieve metadata
              df = db.sra_metadata(i)
@@ -44,13 +52,13 @@ for i in ids:
                         df.insert(len(df.columns),"Title",[title],True)
                         df.insert(len(df.columns),"Abstract",[abstract],True)
                         df.insert(len(df.columns),"LIBRARY_CONSTRUCTION_PROTOCOL",[lib_info],True)
-                        metadata.append(df)
+                        df.insert(len(df.columns),"DESIGN_DESCRIPTION",[design],True)
+                        metadata_single_cell.append(df)
              except:
                 print(i+ "no layout ")
-             os.remove("json_temp")
+                os.remove("json_temp")
            
-        
-
+    
        else:
              #Retrieve metadata
              df = db.sra_metadata(i)
@@ -59,13 +67,17 @@ for i in ids:
                         df.insert(len(df.columns),"Title",[title],True)
                         df.insert(len(df.columns),"Abstract",[abstract],True)
                         df.insert(len(df.columns),"LIBRARY_CONSTRUCTION_PROTOCOL",[lib_info],True)
-                        metadata.append(df)
+                        df.insert(len(df.columns),"DESIGN_DESCRIPTION",[design],True)
+                        metadata_bulk.append(df)
              except:
                 print(i+ "no layout ")
-             os.remove("json_temp")
+                os.remove("json_temp")
 
-result = pd.concat(metadata)
-result.to_csv("srr.metadata")
+single_cell = pd.concat(metadata_single_cell)
+single_cell.to_csv("single_cell.metadata")
+
+bulk = pd.concat(metadata_bulk)
+bulk.to_csv("bulk.metadata")
 
 
  snakemake -j 50 --cluster-config cluster.json --cluster "sbatch -t {cluster.time} -c 28 -N 1"
