@@ -47,6 +47,8 @@ for i in ids:
        if "Chromium" in lib_info or "Single Cell" in lib_info or "single-cell" in lib_info or "single cell" in lib_info or "Single-cell" in lib_info or "Chromium" in design or "Single Cell" in design or "single-cell" in design or "single cell" in design or "Single-cell" in design:
             #Retrieve metadata
              df = db.sra_metadata(i)
+             ##Sometime db.sra_metadata outputs two SRR? 
+             df = df.loc[df['run_accession'] == i]
              try:
                  if df['library_layout'].str.contains('PAIRED').any():
                         df.insert(len(df.columns),"Title",[title],True)
@@ -64,6 +66,8 @@ for i in ids:
        else:
              #Retrieve metadata
              df = db.sra_metadata(i)
+             ##Sometime db.sra_metadata outputs two SRR? 
+             df = df.loc[df['run_accession'] == i]
              try:
                  if df['library_layout'].str.contains('PAIRED').any():
                         df.insert(len(df.columns),"Title",[title],True)
@@ -82,6 +86,9 @@ single_cell.to_csv("single_cell.metadata")
 
 bulk = pd.concat(metadata_bulk)
 bulk.to_csv("bulk.metadata")
+
+
+
 
 
  snakemake -j 50 --cluster-config cluster.json --cluster "sbatch -t {cluster.time} -c 28 -N 1"
