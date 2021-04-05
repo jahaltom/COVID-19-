@@ -57,6 +57,8 @@ for i in ids:
              except:
                 print(i+ "no layout ")
                 os.remove("json_temp")
+                continue
+             os.remove("json_temp")
            
     
        else:
@@ -72,6 +74,8 @@ for i in ids:
              except:
                 print(i+ "no layout ")
                 os.remove("json_temp")
+                continue
+             os.remove("json_temp")
 
 single_cell = pd.concat(metadata_single_cell)
 single_cell.to_csv("single_cell.metadata")
