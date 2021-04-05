@@ -7,7 +7,8 @@ import os
 
 ids=open("sampleid",'r')
 ##Make a list to store metadata
-metadata=[]
+metadata_single=[]
+metadata_bulk=[]
 ##Load SRA database
 db = sraweb.SRAweb()
 for i in ids:
@@ -29,14 +30,26 @@ for i in ids:
        try:
            ##LIBRARY_CONSTRUCTION_PROTOCOL
            lib_info = (data['EXPERIMENT_PACKAGE_SET']['EXPERIMENT_PACKAGE']['EXPERIMENT']['DESIGN']['LIBRARY_DESCRIPTOR']['LIBRARY_CONSTRUCTION_PROTOCOL'])
+           ##DESIGN_DESCRIPTION
+           design = (data['EXPERIMENT_PACKAGE_SET']['EXPERIMENT_PACKAGE']['EXPERIMENT']['DESIGN']['DESIGN_DESCRIPTION'])
        except:
             print(i+"has no Lib Info")
             os.remove("json_temp")
             continue
-       if "Chromium" in lib_info or "Single Cell" in lib_info:
-            print(i+"is single cell")
-            os.remove("json_temp")
-            continue
+       if "Chromium" in lib_info or "Single Cell" in lib_info or "single-cell" in lib_info or "single cell" in lib_info or "Single-cell" in lib_info or "Chromium" in design or "Single Cell" in design or "single-cell" in design or "single cell" in design or "Single-cell" in design:
+            #Retrieve metadata
+             df = db.sra_metadata(i)
+             try:
+                 if df['library_layout'].str.contains('PAIRED').any():
+                        df.insert(len(df.columns),"Title",[title],True)
+                        df.insert(len(df.columns),"Abstract",[abstract],True)
+                        df.insert(len(df.columns),"LIBRARY_CONSTRUCTION_PROTOCOL",[lib_info],True)
+                        metadata.append(df)
+             except:
+                print(i+ "no layout ")
+             os.remove("json_temp")
+           
+        
 
        else:
              #Retrieve metadata
