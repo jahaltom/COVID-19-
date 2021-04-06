@@ -5,103 +5,118 @@ import subprocess
 import os
 
 
-
-ids=open("sampleid",'r')
-##Make a list to store metadata
-metadata_single_cell=[]
-metadata_bulk=[]
-single=[]
-##Load SRA database
-db = sraweb.SRAweb()
-for i in ids:
-    outfile=open("json_temp",'w')
-    cmd=('efetch -db sra -id ' + i + ' -format native -json').replace("\n", "")
-    result = subprocess.Popen(cmd, shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
-    out,err = result.communicate()
-    out=out.decode("utf-8")
-    outfile.write(out+'\n')
-    outfile.close()
-    with open('json_temp') as json_file:
-       data = json.load(json_file)
-       try:
-           ##Title
-           title = (data['EXPERIMENT_PACKAGE_SET']['EXPERIMENT_PACKAGE']['STUDY']['DESCRIPTOR']['STUDY_TITLE'])      
-       except:
-           title="none"
-       try:
-           ##study abstract
-           abstract = (data['EXPERIMENT_PACKAGE_SET']['EXPERIMENT_PACKAGE']['STUDY']['DESCRIPTOR']['STUDY_ABSTRACT'])
-       except:
-           abstract = "none"     
-       try:
-           ##LIBRARY_CONSTRUCTION_PROTOCOL
-           lib_info = (data['EXPERIMENT_PACKAGE_SET']['EXPERIMENT_PACKAGE']['EXPERIMENT']['DESIGN']['LIBRARY_DESCRIPTOR']['LIBRARY_CONSTRUCTION_PROTOCOL'])      
-       except:
-           lib_info="none"
-       try:
-           ##DESIGN_DESCRIPTION
-           design = (data['EXPERIMENT_PACKAGE_SET']['EXPERIMENT_PACKAGE']['EXPERIMENT']['DESIGN']['DESIGN_DESCRIPTION'])
-       except:
-           design = "none"     
-       if design=="none" and lib_info=="none":   
-            print(i + "No Lib Info")
-            os.remove("json_temp")
-            continue
-            
-       ##Single-Cell RNA-Seq     
-       if "Chromium" in lib_info or "Single Cell" in lib_info or "single-cell" in lib_info or "single cell" in lib_info or "Single-cell" in lib_info or "Chromium" in design or "Single Cell" in design or "single-cell" in design or "single cell" in design or "Single-cell" in design:
-            #Retrieve metadata
-             print(i)
-             df = db.sra_metadata(i)
-             ##Sometime db.sra_metadata outputs two SRR? 
-             df = df.loc[df['run_accession'] == i.replace("\n", "")]             
-             try:
-                 if df['library_layout'].str.contains('PAIRED').any():                        
-                        df.insert(len(df.columns),"Title",[title],True)
-                        df.insert(len(df.columns),"Abstract",[abstract],True)
-                        df.insert(len(df.columns),"LIBRARY_CONSTRUCTION_PROTOCOL",[lib_info],True)
-                        df.insert(len(df.columns),"DESIGN_DESCRIPTION",[design],True)
-                        metadata_single_cell.append(df)
-                 else:
-                     df.insert(len(df.columns),"Bagoo",["single"],True)
-                     single.append(df)
-             except:
-                print(i+ "no layout ")
+try:
+    ids=open("bagoo",'r')
+    ##Make a list to store metadata
+    metadata_single_cell=[]
+    metadata_bulk=[]
+    single=[]
+    ##Load SRA database
+    db = sraweb.SRAweb()
+    for i in ids:
+        outfile=open("json_temp",'w')
+        cmd=('efetch -db sra -id ' + i + ' -format native -json').replace("\n", "")
+        result = subprocess.Popen(cmd, shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+        out,err = result.communicate()
+        out=out.decode("utf-8")
+        outfile.write(out+'\n')
+        outfile.close()
+        with open('json_temp') as json_file:
+           data = json.load(json_file)
+           try:
+               ##Title
+               title = (data['EXPERIMENT_PACKAGE_SET']['EXPERIMENT_PACKAGE']['STUDY']['DESCRIPTOR']['STUDY_TITLE'])      
+           except:
+               title="none"
+           try:
+               ##study abstract
+               abstract = (data['EXPERIMENT_PACKAGE_SET']['EXPERIMENT_PACKAGE']['STUDY']['DESCRIPTOR']['STUDY_ABSTRACT'])
+           except:
+               abstract = "none"     
+           try:
+               ##LIBRARY_CONSTRUCTION_PROTOCOL
+               lib_info = (data['EXPERIMENT_PACKAGE_SET']['EXPERIMENT_PACKAGE']['EXPERIMENT']['DESIGN']['LIBRARY_DESCRIPTOR']['LIBRARY_CONSTRUCTION_PROTOCOL'])      
+           except:
+               lib_info="none"
+           try:
+               ##DESIGN_DESCRIPTION
+               design = (data['EXPERIMENT_PACKAGE_SET']['EXPERIMENT_PACKAGE']['EXPERIMENT']['DESIGN']['DESIGN_DESCRIPTION'])
+           except:
+               design = "none"     
+           if design=="none" and lib_info=="none":   
+                print(i + "No Lib Info")
                 os.remove("json_temp")
                 continue
-             os.remove("json_temp")
-           
-       ##Bulk RNA-Seq
-       else:
-             #Retrieve metadata
-             print(i)
-             df = db.sra_metadata(i)
-             ##Sometime db.sra_metadata outputs two SRR? 
-             df = df.loc[df['run_accession'] == i.replace("\n", "")]
-             try:
-                 if df['library_layout'].str.contains('PAIRED').any():
-                        df.insert(len(df.columns),"Title",[title],True)
-                        df.insert(len(df.columns),"Abstract",[abstract],True)
-                        df.insert(len(df.columns),"LIBRARY_CONSTRUCTION_PROTOCOL",[lib_info],True)
-                        df.insert(len(df.columns),"DESIGN_DESCRIPTION",[design],True)
-                        metadata_bulk.append(df)
-                 else:
-                     df.insert(len(df.columns),"Bagoo",["bulk"],True)
-                     single.append(df)
-             except:
-                print(i+ "no layout ")
-                os.remove("json_temp")
-                continue
-             os.remove("json_temp")
+         
+           ##Single-Cell RNA-Seq     
+           sc_words=["Chromium","Single Cell","single-cell","single cell","Single-cell"]
+           if any(word in (design or lib_info or abstract or title) for word in sc_words):   
+                #Retrieve metadata
+                 print(i)
+                 df = db.sra_metadata(i)
+                 ##Sometime db.sra_metadata outputs two SRR? 
+                 df = df.loc[df['run_accession'] == i.replace("\n", "")]             
+                 try:
+                     if df['library_layout'].str.contains('PAIRED').any():                        
+                            df.insert(len(df.columns),"Title",[title],True)
+                            df.insert(len(df.columns),"Abstract",[abstract],True)
+                            df.insert(len(df.columns),"LIBRARY_CONSTRUCTION_PROTOCOL",[lib_info],True)
+                            df.insert(len(df.columns),"DESIGN_DESCRIPTION",[design],True)
+                            metadata_single_cell.append(df)
+                     else:
+                         df.insert(len(df.columns),"Bagoo",["single"],True)
+                         single.append(df)
+                 except:
+                    print(i+ "no layout ")
+                    os.remove("json_temp")
+                    continue
+                 os.remove("json_temp")
+               
+           ##Bulk RNA-Seq
+           else:
+                 #Retrieve metadata
+                 print(i)
+                 df = db.sra_metadata(i)
+                 ##Sometime db.sra_metadata outputs two SRR? 
+                 df = df.loc[df['run_accession'] == i.replace("\n", "")]
+                 try:
+                     if df['library_layout'].str.contains('PAIRED').any():
+                            df.insert(len(df.columns),"Title",[title],True)
+                            df.insert(len(df.columns),"Abstract",[abstract],True)
+                            df.insert(len(df.columns),"LIBRARY_CONSTRUCTION_PROTOCOL",[lib_info],True)
+                            df.insert(len(df.columns),"DESIGN_DESCRIPTION",[design],True)
+                            metadata_bulk.append(df)
+                     else:
+                         df.insert(len(df.columns),"Bagoo",["bulk"],True)
+                         single.append(df)
+                 except:
+                    print(i+ "no layout ")
+                    os.remove("json_temp")
+                    continue
+                 os.remove("json_temp")
 
-single_cell = pd.concat(metadata_single_cell)
-single_cell.to_csv("single_cell.metadata")
+    single_cell = pd.concat(metadata_single_cell)
+    single_cell.to_csv("single_cell.metadata",mode='a', header=False)
+    
+    bulk = pd.concat(metadata_bulk)
+    bulk.to_csv("bulk.metadata",mode='a', header=False)
+    
+    sin = pd.concat(single)
+    sin.to_csv("single.metadata",mode='a', header=False)
+except:
+    single_cell = pd.concat(metadata_single_cell)
+    single_cell.to_csv("single_cell.metadata",mode='a', header=False)
+    
+    bulk = pd.concat(metadata_bulk)
+    bulk.to_csv("bulk.metadata",mode='a', header=False)
+    
+    sin = pd.concat(single)
+    sin.to_csv("single.metadata",mode='a', header=False)
+    
+    
 
-bulk = pd.concat(metadata_bulk)
-bulk.to_csv("bulk.metadata")
 
-sin = pd.concat(single)
-sin.to_csv("single.metadata")
+
 
 
 
