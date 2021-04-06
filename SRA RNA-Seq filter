@@ -20,9 +20,8 @@ def get_metadata(id,list,datatype):
                df.insert(len(df.columns),"Study Type",[datatype],True)
                list.append(df)
         else:
-            df.insert(len(df.columns),"Type",[type],True)
+            df.insert(len(df.columns),"Study Type",[datatype],True)
             single_end.append(df)
-
         os.remove("json_temp")
 
 
@@ -76,7 +75,7 @@ try:
                get_metadata(i, metadata_single_cell, "Single-Cell RNA-Seq")
            ##Other   
            elif "BCR" in (design or lib_info or abstract or title):
-               get_metadata(id, metadata_other, "Other RNA-Seq")
+               get_metadata(i, metadata_other, "Other RNA-Seq")
            
            ##Bulk RNA-Seq
            else:
@@ -101,6 +100,11 @@ except:
     
     single = pd.concat(single_end)
     single.to_csv("single_end.metadata",mode='a', header=True)
+    
+    
+
+
+
     
     
 
