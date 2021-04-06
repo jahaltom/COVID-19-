@@ -5,12 +5,34 @@ import subprocess
 import os
 
 
+
+def get_metadata(id,list,datatype):
+     #Retrieve metadata
+        print(id)
+        df = db.sra_metadata(id)
+        ##Sometime db.sra_metadata outputs two SRR? 
+        df = df.loc[df['run_accession'] == i.replace("\n", "")]             
+        if df['library_layout'].str.contains('PAIRED').any():                        
+               df.insert(len(df.columns),"Title",[title],True)
+               df.insert(len(df.columns),"Abstract",[abstract],True)
+               df.insert(len(df.columns),"LIBRARY_CONSTRUCTION_PROTOCOL",[lib_info],True)
+               df.insert(len(df.columns),"DESIGN_DESCRIPTION",[design],True)
+               df.insert(len(df.columns),"Study Type",[datatype],True)
+               list.append(df)
+        else:
+            df.insert(len(df.columns),"Type",[type],True)
+            single_end.append(df)
+
+        os.remove("json_temp")
+
+
 try:
-    ids=open("bagoo",'r')
+    ids=open("sampleid",'r')
     ##Make a list to store metadata
     metadata_single_cell=[]
     metadata_bulk=[]
-    single=[]
+    metadata_other=[]
+    single_end=[]
     ##Load SRA database
     db = sraweb.SRAweb()
     for i in ids:
@@ -49,69 +71,41 @@ try:
                 continue
          
            ##Single-Cell RNA-Seq     
-           sc_words=["Chromium","Single Cell","single-cell","single cell","Single-cell"]
+           sc_words=["Chromium","Single Cell","single-cell","single cell","Single-cell","Single cell"]
            if any(word in (design or lib_info or abstract or title) for word in sc_words):   
-                #Retrieve metadata
-                 print(i)
-                 df = db.sra_metadata(i)
-                 ##Sometime db.sra_metadata outputs two SRR? 
-                 df = df.loc[df['run_accession'] == i.replace("\n", "")]             
-                 try:
-                     if df['library_layout'].str.contains('PAIRED').any():                        
-                            df.insert(len(df.columns),"Title",[title],True)
-                            df.insert(len(df.columns),"Abstract",[abstract],True)
-                            df.insert(len(df.columns),"LIBRARY_CONSTRUCTION_PROTOCOL",[lib_info],True)
-                            df.insert(len(df.columns),"DESIGN_DESCRIPTION",[design],True)
-                            metadata_single_cell.append(df)
-                     else:
-                         df.insert(len(df.columns),"Bagoo",["single"],True)
-                         single.append(df)
-                 except:
-                    print(i+ "no layout ")
-                    os.remove("json_temp")
-                    continue
-                 os.remove("json_temp")
-               
+               get_metadata(i, metadata_single_cell, "Single-Cell RNA-Seq")
+           ##Other   
+           elif "BCR" in (design or lib_info or abstract or title):
+               get_metadata(id, metadata_other, "Other RNA-Seq")
+           
            ##Bulk RNA-Seq
            else:
-                 #Retrieve metadata
-                 print(i)
-                 df = db.sra_metadata(i)
-                 ##Sometime db.sra_metadata outputs two SRR? 
-                 df = df.loc[df['run_accession'] == i.replace("\n", "")]
-                 try:
-                     if df['library_layout'].str.contains('PAIRED').any():
-                            df.insert(len(df.columns),"Title",[title],True)
-                            df.insert(len(df.columns),"Abstract",[abstract],True)
-                            df.insert(len(df.columns),"LIBRARY_CONSTRUCTION_PROTOCOL",[lib_info],True)
-                            df.insert(len(df.columns),"DESIGN_DESCRIPTION",[design],True)
-                            metadata_bulk.append(df)
-                     else:
-                         df.insert(len(df.columns),"Bagoo",["bulk"],True)
-                         single.append(df)
-                 except:
-                    print(i+ "no layout ")
-                    os.remove("json_temp")
-                    continue
-                 os.remove("json_temp")
+                 get_metadata(i, metadata_bulk, "Bulk RNA-Seq")
+                 
+                 
 
     single_cell = pd.concat(metadata_single_cell)
-    single_cell.to_csv("single_cell.metadata",mode='a', header=False)
+    single_cell.to_csv("single_cell.metadata",mode='a', header=True)
     
     bulk = pd.concat(metadata_bulk)
-    bulk.to_csv("bulk.metadata",mode='a', header=False)
+    bulk.to_csv("bulk.metadata",mode='a', header=True)
     
-    sin = pd.concat(single)
-    sin.to_csv("single.metadata",mode='a', header=False)
+    single = pd.concat(single_end)
+    single.to_csv("single_end.metadata",mode='a', header=True)
 except:
     single_cell = pd.concat(metadata_single_cell)
-    single_cell.to_csv("single_cell.metadata",mode='a', header=False)
+    single_cell.to_csv("single_cell.metadata",mode='a', header=True)
     
     bulk = pd.concat(metadata_bulk)
-    bulk.to_csv("bulk.metadata",mode='a', header=False)
+    bulk.to_csv("bulk.metadata",mode='a', header=True)
     
-    sin = pd.concat(single)
-    sin.to_csv("single.metadata",mode='a', header=False)
+    single = pd.concat(single_end)
+    single.to_csv("single_end.metadata",mode='a', header=True)
+    
+    
+
+
+
     
     
 
