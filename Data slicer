@@ -31,8 +31,8 @@ for key in d:
     ##Create a Dir (study title) where the files will be stored.
     #s = title_list[title_list["SRP"]==key]
     #title = (s["Title"].to_string(index=False,header=False)).replace(" ", "_")
-    #if path.exists(title) is not True:
-    #    os.mkdir(title)
+    if path.exists(key) is not True:
+        os.mkdir(key)
     ##Write
     result.to_csv(key +'/'+ key + ".TPM.tsv",sep='\t',index=False)
     result_count.to_csv(key +'/'+ key + ".Count.tsv",sep='\t',index=False)
