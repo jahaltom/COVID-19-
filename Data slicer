@@ -29,10 +29,10 @@ for key in d:
     result = pd.concat([metadata, quant], axis=1)
     result_count = pd.concat([metadata, count], axis=1)
     ##Create a Dir (study title) where the files will be stored.
-    s = title_list[title_list["SRP"]==key]
-    title = (s["Title"].to_string(index=False,header=False)).replace(" ", "_")
-    if path.exists(title) is not True:
-        os.mkdir(title)
+    #s = title_list[title_list["SRP"]==key]
+    #title = (s["Title"].to_string(index=False,header=False)).replace(" ", "_")
+    #if path.exists(title) is not True:
+    #    os.mkdir(title)
     ##Write
-    result.to_csv(title +'/'+ key + ".TPM.tsv",sep='\t',index=False)
-    result_count.to_csv(title +'/'+ key + ".Count.tsv",sep='\t',index=False)
+    result.to_csv(key +'/'+ key + ".TPM.tsv",sep='\t',index=False)
+    result_count.to_csv(key +'/'+ key + ".Count.tsv",sep='\t',index=False)
