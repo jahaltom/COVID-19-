@@ -17,6 +17,7 @@ def get_metadata(id,list,datatype):
                df.insert(len(df.columns),"Abstract",[abstract],True)
                df.insert(len(df.columns),"LIBRARY_CONSTRUCTION_PROTOCOL",[lib_info],True)
                df.insert(len(df.columns),"DESIGN_DESCRIPTION",[design],True)
+               df.insert(len(df.columns),"Sample Description",[sample_info],True)
                df.insert(len(df.columns),"Study Type",[datatype],True)
                list.append(df)
         else:
@@ -59,6 +60,12 @@ try:
                lib_info = (data['EXPERIMENT_PACKAGE_SET']['EXPERIMENT_PACKAGE']['EXPERIMENT']['DESIGN']['LIBRARY_DESCRIPTOR']['LIBRARY_CONSTRUCTION_PROTOCOL'])      
            except:
                lib_info="none"
+               
+           try:
+               ##Sample Description
+               sample_info = (data['EXPERIMENT_PACKAGE_SET']['EXPERIMENT_PACKAGE']['SAMPLE']['DESCRIPTION'])     
+           except:
+               sample_info="none"
            
            design = str(data['EXPERIMENT_PACKAGE_SET']['EXPERIMENT_PACKAGE']['EXPERIMENT']['DESIGN']['DESIGN_DESCRIPTION'])
            if design == "{}":
