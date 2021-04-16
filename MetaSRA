@@ -1,0 +1,134 @@
+import pandas as pd
+from pysradb import sraweb
+import json
+import subprocess
+import os
+
+
+
+def get_metadata(id,list,datatype):
+     #Retrieve metadata      
+        df = db.sra_metadata(id)
+        ##Sometime db.sra_metadata outputs two SRR? 
+        df = df.loc[df['run_accession'] == id.replace("\n", "")]             
+        if df['library_layout'].str.contains('PAIRED').any():                        
+               df.insert(len(df.columns),"Title",[title],True)
+               df.insert(len(df.columns),"Abstract",[abstract],True)
+               df.insert(len(df.columns),"LIBRARY_CONSTRUCTION_PROTOCOL",[lib_info],True)
+               df.insert(len(df.columns),"DESIGN_DESCRIPTION",[design],True)
+               df.insert(len(df.columns),"Sample Description",[sample_info],True)
+               df.insert(len(df.columns),"Study Type",[datatype],True)
+               list.append(df)
+        else:
+            df.insert(len(df.columns),"Study Type",[datatype],True)
+            single_end.append(df)
+        os.remove("json_temp")
+        
+        
+        
+      ##Read in SRP IDs  
+ids=open("SRPids",'r')
+##Make a list to store metadata
+metadata=[]
+##Load SRA database
+db = sraweb.SRAweb()
+for i in ids:
+    df = db.sra_metadata(i)
+    metadata.append(df[['run_accession']])
+
+metadata = pd.concat(metadata)
+
+
+
+ 
+##Make a list to store metadata
+metadata_single_cell=[]
+metadata_bulk=[]
+metadata_BCR=[]
+single_end=[]
+##Load SRA database
+db = sraweb.SRAweb()
+for index, row in metadata.iterrows():
+    try:
+        outfile=open("json_temp",'w')
+        cmd=('efetch -db sra -id ' + (row['run_accession']) + ' -format native -json').replace("\n", "")
+        result = subprocess.Popen(cmd, shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+        out,err = result.communicate()
+        out=out.decode("utf-8")
+        outfile.write(out+'\n')
+        outfile.close()
+        with open('json_temp') as json_file:
+           data = json.load(json_file)
+           try:
+               ##Title
+               title = (data['EXPERIMENT_PACKAGE_SET']['EXPERIMENT_PACKAGE']['STUDY']['DESCRIPTOR']['STUDY_TITLE'])      
+           except:
+               title="none"
+           try:
+               ##study abstract
+               abstract = (data['EXPERIMENT_PACKAGE_SET']['EXPERIMENT_PACKAGE']['STUDY']['DESCRIPTOR']['STUDY_ABSTRACT'])
+           except:
+               abstract = "none"     
+           try:
+               ##LIBRARY_CONSTRUCTION_PROTOCOL
+               lib_info = (data['EXPERIMENT_PACKAGE_SET']['EXPERIMENT_PACKAGE']['EXPERIMENT']['DESIGN']['LIBRARY_DESCRIPTOR']['LIBRARY_CONSTRUCTION_PROTOCOL'])      
+           except:
+               lib_info="none"
+               
+           try:
+               ##Sample Description
+               sample_info = (data['EXPERIMENT_PACKAGE_SET']['EXPERIMENT_PACKAGE']['SAMPLE']['DESCRIPTION'])     
+           except:
+               sample_info="none"
+           
+           design = str(data['EXPERIMENT_PACKAGE_SET']['EXPERIMENT_PACKAGE']['EXPERIMENT']['DESIGN']['DESIGN_DESCRIPTION'])
+           if design == "{}":
+               design = "none"
+             
+    
+          
+           check=design+lib_info+abstract+title
+           ##Single-Cell RNA-Seq     
+           sc_words=["Chromium","Single Cell","single-cell","single cell","Single-cell","Single cell"]
+           if any(word in check for word in sc_words):   
+               get_metadata((row['run_accession']), metadata_single_cell, "Single-Cell RNA-Seq")
+           ##Other   
+           elif "BCR" in check:
+               get_metadata((row['run_accession']), metadata_BCR, "Other RNA-Seq")
+           
+           ##Bulk RNA-Seq
+           else:
+                 get_metadata((row['run_accession']), metadata_bulk, "Bulk RNA-Seq")
+    except:
+          metadata.append(row['run_accession'])
+          continue
+      
+
+try:
+    metadata_single_cell = pd.concat(metadata_single_cell)
+    metadata_single_cell.to_csv("single_cell.metadata",mode='a', header=True)
+except: pass  
+try:
+    metadata_bulk = pd.concat(metadata_bulk)
+    metadata_bulk.to_csv("bulk.metadata",mode='a', header=True)
+except: pass
+try:
+    metadata_BCR = pd.concat(metadata_BCR)
+    metadata_BCR.to_csv("other.metadata",mode='a', header=True)
+except: pass
+try:   
+    single_end = pd.concat(single_end)
+    single_end.to_csv("single_end.metadata",mode='a', header=True)
+except: pass
+
+
+    
+
+
+
+
+
+
+
+
+
