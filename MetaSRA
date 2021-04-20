@@ -109,21 +109,21 @@ for index, row in metadata.iterrows():
           continue
       
 
-try:
-    metadata_single_cell.insert(len(metadata_single_cell.columns),"Study Type",["Single-Cell RNA-Seq"],True)
+try:    
     metadata_single_cell = pd.concat(metadata_single_cell)
+    metadata_single_cell.insert(len(metadata_single_cell.columns),"Study Type",["Single-Cell RNA-Seq"],True)
     metadata_single_cell.to_csv("single_cell.metadata",mode='a', header=True,index=False)
     
   
 except: pass  
 try:
-    metadata_bulk.insert(len(metadata_bulk.columns),"Study Type",["Bulk RNA-Seq"],True)
     metadata_bulk = pd.concat(metadata_bulk)
+    metadata_bulk.insert(len(metadata_bulk.columns),"Study Type",["Bulk RNA-Seq"],True)
     metadata_bulk.to_csv("bulk.metadata",mode='a', header=True,index=False)
 except: pass
 try:
-    metadata_BCR.insert(len(metadata_BCR.columns),"Study Type",["BCR RNA-Seq"],True)
     metadata_BCR = pd.concat(metadata_BCR)
+    metadata_BCR.insert(len(metadata_BCR.columns),"Study Type",["BCR RNA-Seq"],True)
     metadata_BCR.to_csv("other.metadata",mode='a', header=True,index=False)
 except: pass
 try:   
