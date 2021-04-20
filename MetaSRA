@@ -6,6 +6,7 @@ import os
 
 
 
+
 def get_metadata(id,list,datatype):
      #Retrieve metadata      
         df = db.sra_metadata(id)
@@ -16,7 +17,7 @@ def get_metadata(id,list,datatype):
                df.insert(len(df.columns),"Abstract",[abstract],True)
                df.insert(len(df.columns),"LIBRARY_CONSTRUCTION_PROTOCOL",[lib_info],True)
                df.insert(len(df.columns),"DESIGN_DESCRIPTION",[design],True)
-               df.insert(len(df.columns),"Sample Description",[sample_info],True)
+               df = pd.concat([df, sample_df], axis=1)              
                df.insert(len(df.columns),"Study Type",[datatype],True)
                list.append(df)
         else:
@@ -77,7 +78,13 @@ for index, row in metadata.iterrows():
                
            try:
                ##Sample Description
-               sample_info = (data['EXPERIMENT_PACKAGE_SET']['EXPERIMENT_PACKAGE']['SAMPLE']['DESCRIPTION'])     
+               sample_data=(data['EXPERIMENT_PACKAGE_SET']['EXPERIMENT_PACKAGE']['SAMPLE']['SAMPLE_ATTRIBUTES']['SAMPLE_ATTRIBUTE'])
+               value=[]
+               tag=[]
+               sample_df = pd.DataFrame()
+               for i in sample_data:                
+                   sample_df.insert(len(sample_df.columns),i['TAG'],[i['VALUE']],True)
+                   
            except:
                sample_info="none"
            
@@ -100,29 +107,32 @@ for index, row in metadata.iterrows():
            else:
                  get_metadata((row['run_accession']), metadata_bulk, "Bulk RNA-Seq")
     except:
-          metadata.append(row['run_accession'])
+          metadata.loc[len(metadata.index)] = [(row['run_accession'])]        
           continue
       
 
 try:
     metadata_single_cell = pd.concat(metadata_single_cell)
-    metadata_single_cell.to_csv("single_cell.metadata",mode='a', header=True)
+    metadata_single_cell.to_csv("single_cell.metadata",mode='a', header=True,index=False)
 except: pass  
 try:
     metadata_bulk = pd.concat(metadata_bulk)
-    metadata_bulk.to_csv("bulk.metadata",mode='a', header=True)
+    metadata_bulk.to_csv("bulk.metadata",mode='a', header=True,index=False)
 except: pass
 try:
     metadata_BCR = pd.concat(metadata_BCR)
-    metadata_BCR.to_csv("other.metadata",mode='a', header=True)
+    metadata_BCR.to_csv("other.metadata",mode='a', header=True,index=False)
 except: pass
 try:   
     single_end = pd.concat(single_end)
-    single_end.to_csv("single_end.metadata",mode='a', header=True)
+    single_end.to_csv("single_end.metadata",mode='a', header=True,index=False)
 except: pass
 
 
     
+
+
+
 
 
 
