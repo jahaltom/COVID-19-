@@ -7,7 +7,7 @@ import os
 
 
 
-def get_metadata(id,list,datatype):
+def get_metadata(id,list):
      #Retrieve metadata      
         df = db.sra_metadata(id)
         ##Sometime db.sra_metadata outputs two SRR? 
@@ -17,11 +17,10 @@ def get_metadata(id,list,datatype):
                df.insert(len(df.columns),"Abstract",[abstract],True)
                df.insert(len(df.columns),"LIBRARY_CONSTRUCTION_PROTOCOL",[lib_info],True)
                df.insert(len(df.columns),"DESIGN_DESCRIPTION",[design],True)
-               df = pd.concat([df, sample_df], axis=1)              
-               df.insert(len(df.columns),"Study Type",[datatype],True)
+               df = pd.concat([df, sample_df], axis=1)                             
                list.append(df)
         else:
-            df.insert(len(df.columns),"Study Type",[datatype],True)
+            df.insert(len(df.columns),"Study Type",["Single-End RNA-Seq"],True)
             single_end.append(df)
         os.remove("json_temp")
         
@@ -38,7 +37,6 @@ for i in ids:
     metadata.append(df[['run_accession']])
 
 metadata = pd.concat(metadata)
-
 
 
  
@@ -98,46 +96,44 @@ for index, row in metadata.iterrows():
            ##Single-Cell RNA-Seq     
            sc_words=["Chromium","Single Cell","single-cell","single cell","Single-cell","Single cell"]
            if any(word in check for word in sc_words):   
-               get_metadata((row['run_accession']), metadata_single_cell, "Single-Cell RNA-Seq")
+               get_metadata((row['run_accession']), metadata_single_cell)
            ##Other   
            elif "BCR" in check:
-               get_metadata((row['run_accession']), metadata_BCR, "Other RNA-Seq")
+               get_metadata((row['run_accession']), metadata_BCR)
            
            ##Bulk RNA-Seq
            else:
-                 get_metadata((row['run_accession']), metadata_bulk, "Bulk RNA-Seq")
+                 get_metadata((row['run_accession']), metadata_bulk)
     except:
           metadata.loc[len(metadata.index)] = [(row['run_accession'])]        
           continue
       
 
 try:
+    metadata_single_cell.insert(len(metadata_single_cell.columns),"Study Type",["Single-Cell RNA-Seq"],True)
     metadata_single_cell = pd.concat(metadata_single_cell)
     metadata_single_cell.to_csv("single_cell.metadata",mode='a', header=True,index=False)
+    
+  
 except: pass  
 try:
+    metadata_bulk.insert(len(metadata_bulk.columns),"Study Type",["Bulk RNA-Seq"],True)
     metadata_bulk = pd.concat(metadata_bulk)
     metadata_bulk.to_csv("bulk.metadata",mode='a', header=True,index=False)
 except: pass
 try:
+    metadata_BCR.insert(len(metadata_BCR.columns),"Study Type",["BCR RNA-Seq"],True)
     metadata_BCR = pd.concat(metadata_BCR)
     metadata_BCR.to_csv("other.metadata",mode='a', header=True,index=False)
 except: pass
 try:   
+    
     single_end = pd.concat(single_end)
     single_end.to_csv("single_end.metadata",mode='a', header=True,index=False)
 except: pass
 
 
     
-
-
-
-
-
-
-
-
 
 
 
