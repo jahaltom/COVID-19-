@@ -85,8 +85,8 @@ for index, row in metadata.iterrows():
                for i in sample_data:                
                    sample_df.insert(len(sample_df.columns),i['TAG'],[i['VALUE']],True)
                    
-           except:                                            
-              print("raw")
+           except:                                                        
+               sample_df.insert(len(sample_df.columns),"Sample Info",["None"],True)
            
            try:
                sample_desc=(data['EXPERIMENT_PACKAGE_SET']['EXPERIMENT_PACKAGE']['SAMPLE']['DESCRIPTION'])
