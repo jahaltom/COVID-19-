@@ -40,6 +40,10 @@ metadata = pd.concat(metadata)
 metadata = metadata['run_accession'].to_list()
 
 
+
+leftover=[]
+
+
 ##Make a list to store metadata
 metadata_single_cell=[]
 metadata_bulk=[]
@@ -113,6 +117,7 @@ for i in metadata:
     except:          
           print(i)
           #metadata.append(i)
+          leftover.append(i)
           continue
 
 
@@ -134,4 +139,11 @@ try:
 
     single_end = pd.concat(single_end)
     single_end.to_csv("single_end.metadata",mode='w', header=True,index=False)
+except: pass
+
+
+try:
+
+    leftover = pd.DataFrame(leftover)
+    leftover.to_csv("leftovers",mode='w', header=false,index=False)
 except: pass
