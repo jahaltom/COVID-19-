@@ -120,6 +120,11 @@ for i in metadata:
           leftover.append(i)
           continue
 
+try:
+
+    leftover = pd.DataFrame(leftover)
+    leftover.to_csv("leftovers",mode='w')
+except: pass
 
 try:
     metadata_single_cell = pd.concat(metadata_single_cell)
@@ -142,8 +147,4 @@ try:
 except: pass
 
 
-try:
 
-    leftover = pd.DataFrame(leftover)
-    leftover.to_csv("leftovers",mode='w', header=false,index=False)
-except: pass
