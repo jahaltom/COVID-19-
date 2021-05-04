@@ -40,7 +40,7 @@ metadata = pd.concat(metadata)
 metadata = metadata['run_accession'].to_list()
 
 
-
+##To save IDs kicked out by SRA
 leftover=[]
 
 
