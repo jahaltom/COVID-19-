@@ -4,9 +4,9 @@ This pipeline will fetch metadata from the Sequence Read Archive(SRA) givin a li
 in the study and includes:
 * Study Title
 * Abstract
-* LIBRARY_CONSTRUCTION_PROTOCOL
 * Sample Description(Cell-Tissue Type)
-* Study Design
+* Patient data (Age, Sex, Race, disease state, ect) 
+
 
 In addition to fetching the metadata, it filters out single-end reads and takes the paired-end reads and sperates them ou into (Single-Cell, Bulk, and BCR) RNA-Seq. 
 
