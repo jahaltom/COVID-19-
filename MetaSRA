@@ -41,7 +41,7 @@ metadata = metadata['run_accession'].to_list()
 
 
 ##To save IDs kicked out by SRA
-leftover=[]
+#leftover=[]
 
 
 ##Make a list to store metadata
@@ -116,15 +116,15 @@ for i in metadata:
                  get_metadata(i, metadata_bulk,"Bulk RNA-Seq")
     except:          
           print(i)
-          #metadata.append(i)
-          leftover.append(i)
+          metadata.append(i)
+          #leftover.append(i)
           continue
 
-try:
+#try:
 
-    leftover = pd.DataFrame(leftover)
-    leftover.to_csv("leftovers",mode='w')
-except: pass
+#    leftover = pd.DataFrame(leftover)
+#    leftover.to_csv("leftovers",mode='w')
+#except: pass
 
 try:
     metadata_single_cell = pd.concat(metadata_single_cell)
