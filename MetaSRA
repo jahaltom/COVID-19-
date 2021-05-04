@@ -16,6 +16,7 @@ def get_metadata(id,list,studytype):
                df.insert(len(df.columns),"Abstract",[abstract],True)
                df.insert(len(df.columns),"LIBRARY_CONSTRUCTION_PROTOCOL",[lib_info],True)
                df.insert(len(df.columns),"DESIGN_DESCRIPTION",[design],True)
+               df.reset_index(drop=True, inplace=True)
                df = pd.concat([df, sample_df], axis=1)
                df.insert(len(df.columns),"SAMPLE_DESCRIPTION",[sample_desc],True)
                df.insert(len(df.columns),"Study Type",[studytype],True)
