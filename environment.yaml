@@ -1,4 +1,4 @@
-name: pyrpipe_covid
+name: MetaSRA
 channels:
   - conda-forge
   - bioconda
@@ -372,4 +372,3 @@ dependencies:
     - urllib3==1.25.11
     - widgetsnbextension==3.5.1
     - xmltodict==0.12.0
-prefix: /work/LAS/xgu-lab/miniconda3/envs/pyrpipe_covid
