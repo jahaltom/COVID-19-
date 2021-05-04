@@ -30,4 +30,6 @@ The output will be at most 4 files:
 * metadata_BCR
 * single_end
 
+conda env create -f environment.yaml
 
+conda activate MetaSRA
