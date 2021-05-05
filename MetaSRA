@@ -49,8 +49,7 @@ metadata_single_cell=[]
 metadata_bulk=[]
 metadata_BCR=[]
 single_end=[]
-##Load SRA database
-db = sraweb.SRAweb()
+
 for i in SRR:
     try:
         outfile=open("json_temp",'w')
