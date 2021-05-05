@@ -30,15 +30,15 @@ def get_metadata(id,list,studytype):
       ##Read in SRP IDs
 ids=open("SRPids",'r')
 ##Make a list to store metadata
-metadata=[]
+SRR=[]
 ##Load SRA database
 db = sraweb.SRAweb()
 for i in ids:
     df = db.sra_metadata(i)
-    metadata.append(df[['run_accession']])
+    SRR.append(df[['run_accession']])
 
-metadata = pd.concat(metadata)
-metadata = metadata['run_accession'].to_list()
+SRR = pd.concat(SRR)
+SRR = SRR['run_accession'].to_list()
 
 
 
@@ -51,7 +51,7 @@ metadata_BCR=[]
 single_end=[]
 ##Load SRA database
 db = sraweb.SRAweb()
-for i in metadata:
+for i in SRR:
     try:
         outfile=open("json_temp",'w')
         cmd=('efetch -db sra -id ' + i + ' -format native -json').replace("\n", "")
@@ -116,7 +116,7 @@ for i in metadata:
                  get_metadata(i, metadata_bulk,"Bulk RNA-Seq")
     except:          
           print(i)
-          metadata.append(i)          
+          SRR.append(i)          
           continue
 
 
