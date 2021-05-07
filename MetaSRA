@@ -74,6 +74,8 @@ for i in SRR:
            try:
                ##LIBRARY_CONSTRUCTION_PROTOCOL
                lib_info = (data['EXPERIMENT_PACKAGE_SET']['EXPERIMENT_PACKAGE']['EXPERIMENT']['DESIGN']['LIBRARY_DESCRIPTOR']['LIBRARY_CONSTRUCTION_PROTOCOL'])
+               if lib_info == "{}":
+                   lib_info = "none"
            except:
                lib_info="none"
 
