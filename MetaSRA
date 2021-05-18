@@ -117,8 +117,8 @@ for i in SRR:
                  get_metadata(i, metadata_bulk,"Bulk RNA-Seq")
     except:          
           print(i)
-          #SRR.append(i)          
-          break
+          SRR.append(i)          
+          continue
 
 
 
