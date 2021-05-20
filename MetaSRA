@@ -20,6 +20,7 @@ def get_metadata(id,list,studytype):
                df = pd.concat([df, sample_df], axis=1)
                df.insert(len(df.columns),"SAMPLE_DESCRIPTION",[sample_desc],True)
                df.insert(len(df.columns),"Study Type",[studytype],True)
+               df.reset_index(drop=True, inplace=True)
                list.append(df)
                print("yes")#######################################
         else:
@@ -138,19 +139,17 @@ try:
     metadata_single_cell.to_csv("single_cell.metadata",mode='w', header=True,index=False)
 
 
-except: print("Error at single cell")
-try:
-    metadata_bulk.reset_index(drop=True, inplace=True)
-    metadata_bulk = pd.concat(metadata_bulk)
-    metadata_bulk.to_csv("bulk.metadata",mode='w', header=True,index=False)
+except: pass
+metadata_bulk = pd.concat(metadata_bulk)
+metadata_bulk.to_csv("bulk.metadata",mode='w', header=True,index=False)
 
-except: print("Error at bulk")
+#except: pass
 try:
     metadata_BCR = pd.concat(metadata_BCR)
     metadata_BCR.to_csv("BCR.metadata",mode='w', header=True,index=False)
-except: print("Error at BCR")
+except: pass
 try:
 
     single_end = pd.concat(single_end)
     single_end.to_csv("single_end.metadata",mode='w', header=True,index=False)
-except: print("Error at single end")
+except: pass
