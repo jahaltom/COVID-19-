@@ -138,19 +138,19 @@ try:
     metadata_single_cell.to_csv("single_cell.metadata",mode='w', header=True,index=False)
 
 
-except: pass
+except: print("Error at single cell")
 try:
-    metadata_bulk = metadata_bulk.loc[~metadata_bulk.index.duplicated(keep='first')]
+    metadata_bulk.reset_index(drop=True, inplace=True)
     metadata_bulk = pd.concat(metadata_bulk)
     metadata_bulk.to_csv("bulk.metadata",mode='w', header=True,index=False)
-##
-####except: print("raw")##############################################################
+
+except: print("Error at bulk")
 try:
     metadata_BCR = pd.concat(metadata_BCR)
     metadata_BCR.to_csv("BCR.metadata",mode='w', header=True,index=False)
-except: pass
+except: print("Error at BCR")
 try:
 
     single_end = pd.concat(single_end)
     single_end.to_csv("single_end.metadata",mode='w', header=True,index=False)
-except: pass
+except: print("Error at single end")
