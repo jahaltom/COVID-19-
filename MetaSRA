@@ -21,24 +21,34 @@ def get_metadata(id,list,studytype):
                df.insert(len(df.columns),"SAMPLE_DESCRIPTION",[sample_desc],True)
                df.insert(len(df.columns),"Study Type",[studytype],True)
                list.append(df)
+               print("yes")#######################################
         else:
             single_end.append(df)
         os.remove("json_temp")
 
 
 
-      ##Read in SRP IDs
+##Read in SRP IDs
 ids=open("SRPids",'r')
 ##Make a list to store metadata
+srr_out=[]
 SRR=[]
 ##Load SRA database
 db = sraweb.SRAweb()
+##Sometimes SRA has issues with data retrieval so this gets around that.
 for i in ids:
-    df = db.sra_metadata(i)
-    SRR.append(df[['run_accession']])
+     SRR.append(i.replace("\n", ""))
 
-SRR = pd.concat(SRR)
-SRR = SRR['run_accession'].to_list()
+for i in SRR:
+     try:   
+         df = db.sra_metadata(i)
+         srr_out.append(df[['run_accession']])
+     except:
+          SRR.append(i)
+          continue
+
+srr_out = pd.concat(srr_out)
+srr_out = srr_out['run_accession'].to_list()
 
 
 
@@ -50,7 +60,7 @@ metadata_bulk=[]
 metadata_BCR=[]
 single_end=[]
 
-for i in SRR:
+for i in srr_out:
     try:
         outfile=open("json_temp",'w')
         cmd=('efetch -db sra -id ' + i  + ' -format native -json').replace("\n", "")
@@ -115,9 +125,10 @@ for i in SRR:
            ##Bulk RNA-Seq
            else:
                  get_metadata(i, metadata_bulk,"Bulk RNA-Seq")
+                 print(i)################################################
     except:
           print(i)
-          SRR.append(i)
+          srr_out.append(i)
           continue
 
 
@@ -129,9 +140,11 @@ try:
 
 except: pass
 try:
+    metadata_bulk = metadata_bulk.loc[~metadata_bulk.index.duplicated(keep='first')]
     metadata_bulk = pd.concat(metadata_bulk)
     metadata_bulk.to_csv("bulk.metadata",mode='w', header=True,index=False)
-except: pass
+##
+####except: print("raw")##############################################################
 try:
     metadata_BCR = pd.concat(metadata_BCR)
     metadata_BCR.to_csv("BCR.metadata",mode='w', header=True,index=False)
