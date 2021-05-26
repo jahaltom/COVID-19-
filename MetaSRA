@@ -20,36 +20,37 @@ def get_metadata(id,list,studytype):
                df = pd.concat([df, sample_df], axis=1)
                df.insert(len(df.columns),"SAMPLE_DESCRIPTION",[sample_desc],True)
                df.insert(len(df.columns),"Study Type",[studytype],True)
-               df.reset_index(drop=True, inplace=True)
-               list.append(df)
-               print("yes")#######################################
+               ##This will remove duplicate columns. Sometimes SRA outputs these. If not removed will stop concat later.  
+               df=df.loc[:,~df.columns.duplicated()]
+               list.append(df)               
         else:
             single_end.append(df)
         os.remove("json_temp")
 
 
 
-##Read in SRP IDs
-ids=open("SRPids",'r')
-##Make a list to store metadata
-srr_out=[]
-SRR=[]
+##Read in study_accession IDs
+ids=open("SAids",'r')
+##Make a list to store run_accession IDs
+ra_out=[]
+##A temp list
+ra=[]
 ##Load SRA database
 db = sraweb.SRAweb()
-##Sometimes SRA has issues with data retrieval so this gets around that.
+####Sometimes SRA has issues with data retrieval so this gets around that.
+#Make list from ids
 for i in ids:
-     SRR.append(i.replace("\n", ""))
-
-for i in SRR:
+     ra.append(i.replace("\n", ""))
+for i in ra:
      try:   
          df = db.sra_metadata(i)
-         srr_out.append(df[['run_accession']])
+         ra_out.append(df[['run_accession']])
      except:
-          SRR.append(i)
+          ra.append(i)
           continue
 
-srr_out = pd.concat(srr_out)
-srr_out = srr_out['run_accession'].to_list()
+ra_out = pd.concat(ra_out)
+ra_out = ra_out['run_accession'].to_list()
 
 
 
@@ -61,7 +62,7 @@ metadata_bulk=[]
 metadata_BCR=[]
 single_end=[]
 
-for i in srr_out:
+for i in ra_out:
     try:
         outfile=open("json_temp",'w')
         cmd=('efetch -db sra -id ' + i  + ' -format native -json').replace("\n", "")
@@ -127,9 +128,8 @@ for i in srr_out:
            else:
                  get_metadata(i, metadata_bulk,"Bulk RNA-Seq")
                  print(i)################################################
-    except:
-          print(i)
-          srr_out.append(i)
+    except:          
+          ra_out.append(i)
           continue
 
 
@@ -138,18 +138,16 @@ try:
     metadata_single_cell = pd.concat(metadata_single_cell)
     metadata_single_cell.to_csv("single_cell.metadata",mode='w', header=True,index=False)
 
-
 except: pass
-metadata_bulk = pd.concat(metadata_bulk)
-metadata_bulk.to_csv("bulk.metadata",mode='w', header=True,index=False)
-
-#except: pass
+try:
+    metadata_bulk = pd.concat(metadata_bulk)
+    metadata_bulk.to_csv("bulk.metadata",mode='w', header=True,index=False)
+except: pass
 try:
     metadata_BCR = pd.concat(metadata_BCR)
     metadata_BCR.to_csv("BCR.metadata",mode='w', header=True,index=False)
 except: pass
 try:
-
     single_end = pd.concat(single_end)
     single_end.to_csv("single_end.metadata",mode='w', header=True,index=False)
 except: pass
