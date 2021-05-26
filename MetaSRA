@@ -127,7 +127,7 @@ for i in ra_out:
            ##Bulk RNA-Seq
            else:
                  get_metadata(i, metadata_bulk,"Bulk RNA-Seq")
-                 print(i)################################################
+                 
     except:          
           ra_out.append(i)
           continue
