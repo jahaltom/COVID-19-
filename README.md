@@ -1,7 +1,6 @@
 # MetaSRA
 
-This pipeline will fetch metadata from the Sequence Read Archive(SRA) givin a list of Study Accession IDs and outputs it in a csv file(s). This output is for each Run Accession ID
-in the study and includes:
+This pipeline will fetch metadata from the Sequence Read Archive(SRA) givin a list of Study Accession IDs and outputs it in a csv file(s). Output includes:
 * Study Title
 * Abstract
 * Sample Description(Cell-Tissue Type)
