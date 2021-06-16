@@ -6,7 +6,7 @@ import os
 
 
 
-
+#Function for appending metadata
 def get_metadata(id,list,studytype):
      #Retrieve metadata
         df = db.sra_metadata(id)
@@ -29,15 +29,15 @@ def get_metadata(id,list,studytype):
 
 
 
-##Read in study_accession IDs
+#Read in study_accession IDs
 ids=open("SAids",'r')
-##Make a list to store run_accession IDs
+#Make a list to store run_accession IDs
 ra_out=[]
-##A temp list
+#A temp list
 ra=[]
-##Load SRA database
+#Load SRA database
 db = sraweb.SRAweb()
-####Sometimes SRA has issues with data retrieval so this gets around that.
+#Sometimes SRA has issues with data retrieval so this gets around that.
 #Make list from ids
 for i in ids:
      ra.append(i.replace("\n", ""))
@@ -62,8 +62,10 @@ metadata_bulk=[]
 metadata_BCR=[]
 single_end=[]
 
+#For each RA id
 for i in ra_out:
     try:
+        #Gather metadata
         outfile=open("json_temp",'w')
         cmd=('efetch -db sra -id ' + i  + ' -format native -json').replace("\n", "")
         result = subprocess.Popen(cmd, shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
@@ -74,17 +76,17 @@ for i in ra_out:
         with open('json_temp') as json_file:
            data = json.load(json_file)
            try:
-               ##Title
+               #Title
                title = (data['EXPERIMENT_PACKAGE_SET']['EXPERIMENT_PACKAGE']['STUDY']['DESCRIPTOR']['STUDY_TITLE'])
            except:
                title="none"
            try:
-               ##study abstract
+               #study abstract
                abstract = (data['EXPERIMENT_PACKAGE_SET']['EXPERIMENT_PACKAGE']['STUDY']['DESCRIPTOR']['STUDY_ABSTRACT'])
            except:
                abstract = "none"
            try:
-               ##LIBRARY_CONSTRUCTION_PROTOCOL
+               #LIBRARY_CONSTRUCTION_PROTOCOL
                lib_info = (data['EXPERIMENT_PACKAGE_SET']['EXPERIMENT_PACKAGE']['EXPERIMENT']['DESIGN']['LIBRARY_DESCRIPTOR']['LIBRARY_CONSTRUCTION_PROTOCOL'])
                if type(lib_info) is dict:
                    lib_info = "none"
@@ -92,7 +94,7 @@ for i in ra_out:
                lib_info="none"
 
            try:
-               ##Sample Description
+               #Sample Description
                sample_df = pd.DataFrame()
                sample_data=(data['EXPERIMENT_PACKAGE_SET']['EXPERIMENT_PACKAGE']['SAMPLE']['SAMPLE_ATTRIBUTES']['SAMPLE_ATTRIBUTE'])
                value=[]
@@ -108,13 +110,13 @@ for i in ra_out:
                sample_desc=(data['EXPERIMENT_PACKAGE_SET']['EXPERIMENT_PACKAGE']['SAMPLE']['DESCRIPTION'])
            except:
                sample_desc="none"
-
+           #Study Design
            design = str(data['EXPERIMENT_PACKAGE_SET']['EXPERIMENT_PACKAGE']['EXPERIMENT']['DESIGN']['DESIGN_DESCRIPTION'])
            if design == "{}":
                design = "none"
 
 
-
+           #Places to seach key words
            check=design+lib_info+abstract+title
            ##Single-Cell RNA-Seq
            sc_words=["Chromium","Single Cell","single-cell","single cell","Single-cell","Single cell"]
@@ -127,7 +129,7 @@ for i in ra_out:
            ##Bulk RNA-Seq
            else:
                  get_metadata(i, metadata_bulk,"Bulk RNA-Seq")
-                 
+    #If eftech doesnt work for some unknown reason, whitch it often does, append the id to bottom of list so that it will be ran through again.             
     except:          
           ra_out.append(i)
           continue
