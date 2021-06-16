@@ -16,7 +16,7 @@ conda activate MetaSRA
 ```
 
 ##Getting started
-To get started place your Study Accession IDs "SRP294125" in a file called "SRPids".
+To get started place your Study Accession IDs "SRP294125" in a file called "SAids".
 Then to run MetaSRA use this command:
 ```
 python MetaSRA 
