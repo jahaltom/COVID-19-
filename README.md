@@ -1,6 +1,6 @@
 # MetaSRA
 
-Givin a list of Study Accession IDs, this pipeline will fetch metadata from the Sequence Read Archive(SRA) and output it in a csv format. Output includes:
+Givin a list of Study Accession IDs(or  GEO acc. no) , this pipeline will fetch metadata from the Sequence Read Archive(SRA) and output it in a csv format. Output includes:
 * Study Title
 * Abstract
 * Sample Description(Cell-Tissue Type)
