@@ -11,20 +11,19 @@ def get_metadata(id,list,studytype):
      #Retrieve metadata
         df = db.sra_metadata(id)
         df = df.loc[df['run_accession'] == id.replace("\n", "")]
-        if df['library_layout'].str.contains('PAIRED').any():
-               df.insert(len(df.columns),"Title",[title],True)
-               df.insert(len(df.columns),"Abstract",[abstract],True)
-               df.insert(len(df.columns),"LIBRARY_CONSTRUCTION_PROTOCOL",[lib_info],True)
-               df.insert(len(df.columns),"DESIGN_DESCRIPTION",[design],True)
-               df.reset_index(drop=True, inplace=True)
-               df = pd.concat([df, sample_df], axis=1)
-               df.insert(len(df.columns),"SAMPLE_DESCRIPTION",[sample_desc],True)
-               df.insert(len(df.columns),"Study Type",[studytype],True)
-               ##This will remove duplicate columns. Sometimes SRA outputs these. If not removed will stop concat later.  
-               df=df.loc[:,~df.columns.duplicated()]
-               list.append(df)               
-        else:
-            single_end.append(df)
+       
+        df.insert(len(df.columns),"Title",[title],True)
+        df.insert(len(df.columns),"Abstract",[abstract],True)
+        df.insert(len(df.columns),"LIBRARY_CONSTRUCTION_PROTOCOL",[lib_info],True)
+        df.insert(len(df.columns),"DESIGN_DESCRIPTION",[design],True)
+        df.reset_index(drop=True, inplace=True)
+        df = pd.concat([df, sample_df], axis=1)
+        df.insert(len(df.columns),"SAMPLE_DESCRIPTION",[sample_desc],True)
+        df.insert(len(df.columns),"Study Type",[studytype],True)
+        ##This will remove duplicate columns. Sometimes SRA outputs these. If not removed will stop concat later.  
+        df=df.loc[:,~df.columns.duplicated()]
+        list.append(df)               
+      
         os.remove("json_temp")
 
 
@@ -145,8 +144,4 @@ except: pass
 try:
     metadata_BCR = pd.concat(metadata_BCR)
     metadata_BCR.to_csv("BCR.metadata",mode='w', header=True,index=False)
-except: pass
-try:
-    single_end = pd.concat(single_end)
-    single_end.to_csv("single_end.metadata",mode='w', header=True,index=False)
 except: pass
