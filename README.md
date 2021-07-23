@@ -1,6 +1,6 @@
 # MetaSRA
 
-Givin a list of Study Accession IDs (SRP294125), BioProject IDs (PRJNA163279), or GEO_Accession IDs (GSM927308), this pipeline will fetch metadata from the Sequence Read Archive(SRA) and output it in a csv format. Output includes:
+Givin a list of Study Accession IDs (SRP294125), BioProject IDs (PRJNA163279), or GEO_Accession IDs (GSM927308), this pipeline will fetch metadata from the Sequence Read Archive(SRA) for each run and output it in a csv format. Output includes:
 * Study Title
 * Abstract
 * Sample Description(Cell-Tissue Type)
