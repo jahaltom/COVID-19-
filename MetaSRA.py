@@ -96,10 +96,7 @@ for i in ra_out:
            try:
                #Sample Description
                sample_df = pd.DataFrame()
-               sample_data=(data['EXPERIMENT_PACKAGE_SET']['EXPERIMENT_PACKAGE']['SAMPLE']['SAMPLE_ATTRIBUTES']['SAMPLE_ATTRIBUTE'])
-               value=[]
-               tag=[]
-               sample_df = pd.DataFrame()
+               sample_data=(data['EXPERIMENT_PACKAGE_SET']['EXPERIMENT_PACKAGE']['SAMPLE']['SAMPLE_ATTRIBUTES']['SAMPLE_ATTRIBUTE'])       
                for x in sample_data:
                    sample_df.insert(len(sample_df.columns),x['TAG'],[x['VALUE']],True)
 
