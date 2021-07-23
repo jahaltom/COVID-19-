@@ -1,6 +1,6 @@
 # MetaSRA
 
-Givin a list of Study Accession IDs or (BioProject IDs(PRJNA163279) or GEO acc. #'s(GSM927308)) , this pipeline will fetch metadata from the Sequence Read Archive(SRA) and output it in a csv format. Output includes:
+Givin a list of Study Accession IDs(SRP294125) or (BioProject IDs(PRJNA163279) or GEO acc. #'s(GSM927308)) , this pipeline will fetch metadata from the Sequence Read Archive(SRA) and output it in a csv format. Output includes:
 * Study Title
 * Abstract
 * Sample Description(Cell-Tissue Type)
@@ -16,16 +16,16 @@ conda activate MetaSRA
 ```
 
 ##Getting started
-To get started place your Study Accession IDs "SRP294125" in a file called "SAids".
+To get started place your Study Accession IDs in a file called "SAids".
 Then to run MetaSRA use this command:
 ```
 python MetaSRA 
 ```
 
-The output will be at most 4 files:
+The output will be at most 3 files:
 * metadata_single_cell
 * metadata_bulk
 * metadata_BCR
-* single_end
+
 
 
