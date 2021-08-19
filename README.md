@@ -19,7 +19,7 @@ conda activate MetaSRA
 To get started place your Study Accession IDs in a file called "SAids".
 Then to run MetaSRA use this command:
 ```
-python MetaSRA 
+python MetaSRA.py 
 ```
 
 The output will be at most 3 files:
