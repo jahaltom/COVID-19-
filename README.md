@@ -9,13 +9,14 @@ Givin a list of Study Accession IDs (SRP294125), BioProject IDs (PRJNA163279), o
 
 Single-end and paired-end reads are marked and sperated  into (Single-Cell, Bulk, and BCR) RNA-Seq. 
 
-##Prerequisites
+#Prerequisites
 ```
 conda env create -f environment.yaml
 conda activate MetaSRA
 ```
 
-##Getting started
+#Getting started
+
 To get started place your Study Accession IDs in a file called "SAids".
 Then to run MetaSRA use this command:
 ```
