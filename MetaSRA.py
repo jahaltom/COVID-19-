@@ -9,7 +9,7 @@ import os
 #Function for appending metadata
 def get_metadata(id,list,studytype):
      #Retrieve metadata
-        df = db.sra_metadata(id)
+        df = db.sra_metadata(id,detailed=True)
         df = df.loc[df['run_accession'] == id.replace("\n", "")]
        
         df.insert(len(df.columns),"Title",[title],True)
