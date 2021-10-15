@@ -5,9 +5,9 @@ Given a list of Study Accession IDs (SRP294125), BioProject IDs (PRJNA163279), o
 * Abstract
 * Sample Description(Cell-Tissue Type)
 * Patient data (Age, Sex, Race, disease state, ect) 
+* library_layout (Single-end or Paired-end)
 
-
-Single-end and paired-end reads are marked and sperated  into (Single-Cell, Bulk, and BCR) RNA-Seq. 
+Output is sperated into Single-Cell, Bulk, and BCR RNA-Seq.
 
 **Prerequisites**
 ```
