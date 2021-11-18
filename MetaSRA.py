@@ -80,6 +80,11 @@ for i in ra_out:
            except:
                title="none"
            try:
+               #Source
+               source = (data['EXPERIMENT_PACKAGE_SET']['EXPERIMENT_PACKAGE']['EXPERIMENT']['DESIGN']['LIBRARY_DESCRIPTOR']['LIBRARY_SOURCE'])
+           except:
+               source="none"            
+           try:
                #study abstract
                abstract = (data['EXPERIMENT_PACKAGE_SET']['EXPERIMENT_PACKAGE']['STUDY']['DESCRIPTOR']['STUDY_ABSTRACT'])
            except:
@@ -113,9 +118,9 @@ for i in ra_out:
 
 
            #Places to seach key words
-           check=design+lib_info+abstract+title
+           check=design+lib_info+abstract+title+source
            ##Single-Cell RNA-Seq
-           sc_words=["Chromium","Single Cell","single-cell","single cell","Single-cell","Single cell"]
+           sc_words=["Chromium","Single Cell","single-cell","single cell","Single-cell","Single cell","SINGLE CELL"]
            if any(word in check for word in sc_words):
                get_metadata(i, metadata_single_cell,"Single-Cell RNA-Seq")
            ##Other
@@ -134,14 +139,14 @@ for i in ra_out:
 
 try:
     metadata_single_cell = pd.concat(metadata_single_cell)
-    metadata_single_cell.to_csv("single_cell.metadata",mode='w', header=True,index=False)
+    metadata_single_cell.to_csv("single_cell.metadata.tsv",mode="w", header=True,index=False,sep="\t")
 
 except: pass
 try:
     metadata_bulk = pd.concat(metadata_bulk)
-    metadata_bulk.to_csv("bulk.metadata",mode='w', header=True,index=False)
+    metadata_bulk.to_csv("bulk.metadata.tsv",mode="w", header=True,index=False,sep="\t")
 except: pass
 try:
     metadata_BCR = pd.concat(metadata_BCR)
-    metadata_BCR.to_csv("BCR.metadata",mode='w', header=True,index=False)
+    metadata_BCR.to_csv("BCR.metadata.tsv",mode="w", header=True,index=False,sep="\t")
 except: pass
