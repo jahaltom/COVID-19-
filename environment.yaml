@@ -1,4 +1,4 @@
-name: MetaSRA
+name: GetMetaSRA
 channels:
   - conda-forge
   - bioconda
