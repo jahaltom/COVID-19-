@@ -12,7 +12,7 @@ Output is sperated into Single-Cell, Bulk, and BCR RNA-Seq.
 **Prerequisites**
 ```
 conda env create -f environment.yaml
-conda activate MetaSRA
+conda activate GetMetaSRA
 ```
 
 **Getting started**
