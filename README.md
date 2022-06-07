@@ -1,5 +1,5 @@
 # MetaSRA
-
+<meta name="google-site-verification" content="431lHTaDnighlTx02AVAAFXitAsHZxPjkaX9n-XL7kc" />
 Given a list of Study Accession IDs (SRP294125), BioProject IDs (PRJNA163279), or GEO_Accession IDs (GSM927308), this pipeline will fetch metadata from the Sequence Read Archive(SRA) for each run and output it in a csv format. Output includes:
 * Study Title
 * Abstract
