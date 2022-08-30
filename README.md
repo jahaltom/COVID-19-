@@ -28,5 +28,35 @@ The output will be at most 3 files:
 * metadata_bulk
 * metadata_BCR
 
+# Parallelize
+```
+split -l 25 SAids
 
+ls *xa* | cat > splits
+
+cat splits | while read i; do
+	mkdir Dir$i
+	cat $i > Dir$i/SAids
+	cp GetMetaSRA.py Dir$i/
+	cp script Dir$i/
+	sbatch Dir$i/script
+done
+```
+
+
+
+
+#Script
+```
+#!/bin/bash
+
+#SBATCH --time=24:00:00   # walltime limit (HH:MM:SS)
+#SBATCH --nodes=1   # number of nodes
+#SBATCH --ntasks-per-node=50   # 30 processor core(s) per node
+#SBATCH -p RM-shared
+
+
+source activate GetMetaSRA
+python GetMetaSRA.py 
+```
 
